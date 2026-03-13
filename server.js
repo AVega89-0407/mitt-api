@@ -1,10 +1,27 @@
 import express from 'express';
+import 'dotenv/config';
+
+
 
 const app = express();
 
-const PORT = 3000;
+const PORT = process.env.PORT;
+
+function requireApiKey (req, res, next) {
+    const apiKey = req.headers['x-api-key'];
+
+    console.log("Header key:", apiKey);
+    console.log("Env key:", process.env.API_KEY);
+    
+    if (!apiKey || apiKey !== process.env.API_KEY) {
+        return res.status(401).json({ error: 'Ogiltig eller saknad API-nyckel' });
+    }
+
+    next();
+}
 
 app.use(express.json());
+app.use('/api', requireApiKey);
 
 let books = [
     { id: 1, title: 'The Housemaid', author: 'Freida McFadden' },
